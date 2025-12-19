@@ -99,6 +99,12 @@
   justify-content: space-between;
   align-items: center;
   min-height: 70px;
+  position: relative;
+}
+
+/* Mobile Menu Wrapper */
+.mobileMenuWrapper {
+  display: contents; /* Makes it part of the flex container */
 }
 
 /* Logo */
@@ -329,6 +335,10 @@
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1003;
+  border: none;
+  padding: 0;
 }
 
 .mobileMenuBtn:hover {
@@ -341,19 +351,39 @@
   height: 24px;
 }
 
+/* Hamburger Animation Lines */
+.menuIcon line {
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+/* When menu is open - animate to X */
+.menuOpen .line1 {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menuOpen .line2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.menuOpen .line3 {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 /* Hide mobile-only elements on desktop */
 .mobileOnly {
   display: none;
 }
 
-/* Overlay */
+/* Overlay - Dark background when menu is open */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(4px);
   z-index: 1001;
   opacity: 0;
@@ -366,6 +396,11 @@
   opacity: 1;
   visibility: visible;
   pointer-events: all;
+}
+
+/* Fix for preventing scroll when menu is open */
+body.menu-open {
+  overflow: hidden;
 }
 
 /* Tablet View (1024px and below) */
@@ -400,12 +435,31 @@
     min-height: 60px;
   }
 
+  /* Show mobile menu button */
   .mobileMenuBtn {
     display: flex;
-    z-index: 1003;
-    position: relative;
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
+  /* Fix: Move navRight inside navContainer to proper position */
+  .navRight {
+    margin-left: auto;
+    margin-right: 60px; /* Make space for hamburger button */
+  }
+
+  /* Hide navRight buttons on mobile */
+  .searchBtn {
+    display: none;
+  }
+
+  .signInBtn {
+    display: none;
+  }
+
+  /* Mobile navigation menu */
   .navCenter {
     position: fixed;
     top: 0;
@@ -419,6 +473,8 @@
     z-index: 1002;
     overflow-y: auto;
     box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+    margin: 0;
+    flex: none;
   }
 
   .navCenter.mobileMenuOpen {
@@ -486,14 +542,6 @@
     margin: 0.25rem 0;
   }
 
-  .searchBtn {
-    display: none;
-  }
-
-  .signInBtn {
-    display: none;
-  }
-
   .logoName {
     font-size: 1.25rem;
   }
@@ -516,6 +564,14 @@
 @media (max-width: 480px) {
   .navContainer {
     padding: 0.75rem 1rem;
+  }
+
+  .mobileMenuBtn {
+    right: 1rem;
+  }
+
+  .navRight {
+    margin-right: 50px;
   }
 
   .logoName {
