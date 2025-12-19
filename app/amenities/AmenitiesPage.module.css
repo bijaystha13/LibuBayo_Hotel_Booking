@@ -1,0 +1,751 @@
+/* Amenities Page Container */
+.amenitiesPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  padding-top: 80px;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  min-height: 550px;
+  background: linear-gradient(
+      135deg,
+      rgba(102, 126, 234, 0.4),
+      rgba(118, 75, 162, 0.4)
+    ),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600")
+      center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding: 3rem 2rem;
+  max-width: 1000px;
+}
+
+.heroIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.heroTitle {
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInUp 0.8s ease;
+  line-height: 1.2;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.heroSubtitle {
+  font-size: 1.35rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  margin-bottom: 3rem;
+  animation: fadeInUp 1s ease;
+  line-height: 1.6;
+}
+
+.heroFeatures {
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 1.2s ease;
+}
+
+.heroFeatureItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.heroFeatureItem:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-5px);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.featureIcon {
+  font-size: 2rem;
+}
+
+.heroFeatureItem span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Category Section */
+.categorySection {
+  padding: 3rem 0 2rem;
+  background: transparent;
+  position: sticky;
+  top: 80px;
+  z-index: 100;
+  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), transparent);
+  backdrop-filter: blur(10px);
+}
+
+.categoryNav {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.categoryBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.categoryBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.categoryIcon {
+  font-size: 1.25rem;
+}
+
+.categoryLabel {
+  font-size: 1rem;
+}
+
+/* iOS Liquid Glass Active Category Style */
+.activeCategory {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 4px 20px rgba(102, 126, 234, 0.3), 0 8px 32px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+  position: relative;
+  overflow: hidden;
+}
+
+.activeCategory::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.activeCategory:hover::before {
+  left: 100%;
+}
+
+/* Amenities Section */
+.amenitiesSection {
+  padding: 2rem 0 4rem;
+}
+
+.amenitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 2.5rem;
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Amenity Card */
+.amenityCard {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.amenityCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.premiumBadge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.amenityImageWrapper {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+.amenityImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.amenityCard:hover .amenityImage {
+  transform: scale(1.1);
+}
+
+.amenityOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.amenityCard:hover .amenityOverlay {
+  opacity: 1;
+}
+
+.viewDetailsBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: translateY(20px);
+}
+
+.amenityCard:hover .viewDetailsBtn {
+  transform: translateY(0);
+}
+
+.viewDetailsBtn:hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+.amenityContent {
+  padding: 1.75rem;
+}
+
+.amenityTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.amenityDescription {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.amenityFeatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 1.5rem;
+}
+
+.featureTag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.875rem;
+  background: rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.featureTag:hover {
+  background: rgba(102, 126, 234, 0.25);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+.featureTag svg {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.amenityFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.amenityHours {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.amenityHours svg {
+  flex-shrink: 0;
+  color: #667eea;
+}
+
+.bookAmenityBtn {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.bookAmenityBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* CTA Section */
+.ctaSection {
+  padding: 4rem 0;
+  background: transparent;
+}
+
+.ctaCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.ctaContent {
+  flex: 1;
+}
+
+.ctaTitle {
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.ctaText {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.125rem 2.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.ctaBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+}
+
+.ctaBtn svg {
+  transition: transform 0.3s ease;
+}
+
+.ctaBtn:hover svg {
+  transform: translateX(5px);
+}
+
+.ctaStats {
+  display: flex;
+  gap: 3rem;
+}
+
+.ctaStat {
+  text-align: center;
+}
+
+.ctaStatNumber {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.ctaStatLabel {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+/* Tablet View */
+@media (max-width: 1024px) {
+  .amenitiesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+  }
+
+  .heroTitle {
+    font-size: 3.5rem;
+  }
+
+  .heroFeatures {
+    gap: 1.5rem;
+  }
+
+  .ctaCard {
+    padding: 3rem;
+    gap: 3rem;
+  }
+
+  .ctaTitle {
+    font-size: 2.25rem;
+  }
+
+  .ctaStats {
+    gap: 2rem;
+  }
+
+  .ctaStatNumber {
+    font-size: 2.5rem;
+  }
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .amenitiesPage {
+    padding-top: 60px;
+  }
+
+  .hero {
+    min-height: 450px;
+  }
+
+  .heroContent {
+    padding: 2rem 1.5rem;
+  }
+
+  .heroIcon {
+    font-size: 3rem;
+  }
+
+  .heroTitle {
+    font-size: 2.75rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .heroFeatures {
+    gap: 1rem;
+  }
+
+  .heroFeatureItem {
+    padding: 1rem 1.25rem;
+  }
+
+  .featureIcon {
+    font-size: 1.5rem;
+  }
+
+  .heroFeatureItem span {
+    font-size: 0.85rem;
+  }
+
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .categorySection {
+    padding: 2rem 0 1.5rem;
+    top: 60px;
+  }
+
+  .categoryNav {
+    gap: 0.75rem;
+  }
+
+  .categoryBtn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .categoryIcon {
+    font-size: 1.1rem;
+  }
+
+  .amenitiesGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .amenitiesSection {
+    padding: 1.5rem 0 3rem;
+  }
+
+  .amenityContent {
+    padding: 1.5rem;
+  }
+
+  .amenityTitle {
+    font-size: 1.35rem;
+  }
+
+  .amenityFooter {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .bookAmenityBtn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .ctaCard {
+    flex-direction: column;
+    padding: 2.5rem 2rem;
+    gap: 2.5rem;
+  }
+
+  .ctaTitle {
+    font-size: 2rem;
+  }
+
+  .ctaText {
+    font-size: 1rem;
+  }
+
+  .ctaBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ctaStats {
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .ctaStatNumber {
+    font-size: 2.25rem;
+  }
+}
+
+/* Small Mobile View */
+@media (max-width: 480px) {
+  .hero {
+    min-height: 400px;
+  }
+
+  .heroTitle {
+    font-size: 2.25rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .heroFeatures {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .heroFeatureItem {
+    flex-direction: row;
+    width: 100%;
+    padding: 0.875rem 1rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .categoryBtn {
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .categoryIcon {
+    font-size: 1rem;
+  }
+
+  .premiumBadge {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .ctaCard {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .ctaTitle {
+    font-size: 1.75rem;
+  }
+
+  .ctaBtn {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Very Small Devices */
+@media (max-width: 380px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .amenityTitle {
+    font-size: 1.25rem;
+  }
+
+  .ctaTitle {
+    font-size: 1.5rem;
+  }
+}

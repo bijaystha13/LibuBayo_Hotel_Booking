@@ -38,8 +38,8 @@ export default function NavLinks() {
 
       <li className={styles.navItem}>
         <Link
-          href="/offers"
-          className={`${styles.navLink} ${isActive("/offers")}`}
+          href="/specialoffers"
+          className={`${styles.navLink} ${isActive("/specialoffers")}`}
         >
           Special Offers
           <span className={styles.dealsBadge}>HOT</span>
