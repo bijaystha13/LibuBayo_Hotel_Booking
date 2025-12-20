@@ -1,6 +1,7 @@
 import styles from "./NavBar.module.css";
 import Link from "next/link";
 import NavLinks from "./NavLinks.client";
+import AuthButton from "./AuthButton";
 
 export default function Navbar() {
   return (
@@ -31,10 +32,8 @@ export default function Navbar() {
           </div>
 
           <div className={styles.navRight}>
-            <button className={styles.searchBtn}>🔍</button>
-            <Link href="/login" className={styles.signInBtn}>
-              Login
-            </Link>
+            {/* <button className={styles.searchBtn}>🔍</button> */}
+            <AuthButton />
           </div>
         </div>
       </div>

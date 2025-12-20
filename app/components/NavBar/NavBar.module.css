@@ -624,3 +624,225 @@ body.menu-open {
     padding: 0.65rem 0.875rem;
   }
 }
+
+/*  */
+
+/* Logout Button Styles */
+/* Elegant Logout Button with icon */
+/* Logout Button with Icon */
+.logoutBtn {
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  padding: 0.625rem 1.5rem 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #f5576c, #f093fb);
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.logoutBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+  background: linear-gradient(135deg, #ff6b7a, #f8a5d1);
+  gap: 1rem;
+}
+
+.logoutIcon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.logoutBtn:hover .logoutIcon {
+  transform: translateX(3px);
+}
+
+/* Pulse animation for attention */
+@keyframes subtlePulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(245, 87, 108, 0.5);
+  }
+}
+
+.logoutBtn {
+  animation: subtlePulse 3s infinite;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .logoutBtn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 1.05rem;
+    gap: 1rem;
+  }
+
+  .logoutIcon {
+    font-size: 1.2rem;
+  }
+}
+
+/*  */
+/* User Menu Container */
+.userMenuContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.userMenuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.userMenuBtn:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.userIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* User Dropdown Menu */
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: dropdownSlideIn 0.3s ease;
+  z-index: 1004;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* User Dropdown Header */
+.userDropdownHeader {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.userAvatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.userAvatar svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dropdown Divider */
+.userDropdownDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 0;
+}
+
+/* Dropdown Items */
+.userDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.userDropdownItem:hover {
+  background: rgba(102, 126, 234, 0.15);
+  color: white;
+}
+
+.dropdownIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .userMenuContainer {
+    display: none;
+  }
+}

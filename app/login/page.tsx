@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import styles from "./LoginPage.module.css";
 import Input from "../shared/FormElements/Input";
 import {
@@ -12,8 +12,10 @@ import { FaUser, FaLock, FaEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
 import Button from "../shared/FormElements/Button";
 import { useForm } from "../shared/hooks/formHook";
 import { FaFacebookF, FaGoogle } from "react-icons/fa6";
+import { AuthContext } from "../shared/Context/AuthContext";
 
 export default function LoginPage() {
+  const authCtx = useContext(AuthContext);
   const [formState, inputHandler, setFormData] = useForm(
     {
       email: {
@@ -64,6 +66,7 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+    authCtx.login();
   };
 
   const toggleMode = () => {
