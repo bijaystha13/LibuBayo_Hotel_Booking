@@ -533,3 +533,33 @@
     font-size: 1rem;
   }
 }
+
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2rem;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eyeButton:hover {
+  color: #333;
+}
+
+.eyeButton:focus {
+  outline: none;
+  color: #007bff;
+}
