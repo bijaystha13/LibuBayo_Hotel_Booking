@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./NavBar.module.css";
+import Link from "next/link";
 
 export default function NavLinks() {
   const pathname = usePathname();
@@ -12,12 +12,14 @@ export default function NavLinks() {
   const isActive = (path: string) =>
     pathname === path ? styles.activeLink : "";
 
-  // Close mobile menu when pathname changes
   useEffect(() => {
-    setMobileMenuOpen(false);
+    const timeout = setTimeout(() => {
+      setMobileMenuOpen(false);
+    }, 0);
+
+    return () => clearTimeout(timeout);
   }, [pathname]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -42,13 +44,11 @@ export default function NavLinks() {
 
   return (
     <>
-      {/* Overlay */}
       <div
         className={`${styles.overlay} ${mobileMenuOpen ? styles.active : ""}`}
         onClick={() => setMobileMenuOpen(false)}
       />
 
-      {/* Navigation Links - Desktop & Mobile */}
       <div
         className={`${styles.navCenter} ${
           mobileMenuOpen ? styles.mobileMenuOpen : ""
@@ -110,7 +110,7 @@ export default function NavLinks() {
               Contact
             </Link>
           </li>
-          {/* Mobile Only Login Button */}
+
           <li className={`${styles.navItem} ${styles.mobileOnly}`}>
             <Link
               href="/login"
@@ -123,7 +123,6 @@ export default function NavLinks() {
         </ul>
       </div>
 
-      {/* Mobile Menu Button */}
       <button
         className={`${styles.mobileMenuBtn} ${
           mobileMenuOpen ? styles.menuOpen : ""

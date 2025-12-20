@@ -1,0 +1,177 @@
+/* Base form control styling */
+.form-control {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.form-control label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+/* Input and textarea base styles */
+.input,
+.textarea {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+/* Add left padding when inside input-wrapper (for icon) */
+.input-wrapper .input,
+.input-wrapper .textarea {
+  padding-left: 3.25rem;
+}
+
+/* Focus states */
+.input:focus,
+.textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Placeholder styling */
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+/* Textarea specific */
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+/* Hover states */
+.input:hover,
+.textarea:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Error state */
+.form-control.error label {
+  color: #ff6b6b;
+}
+
+.form-control.error .input,
+.form-control.error .textarea {
+  border-color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.08);
+}
+
+.form-control.error .input:focus,
+.form-control.error .textarea:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+/* Disabled state */
+.input:disabled,
+.textarea:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Required indicator */
+.required {
+  color: #ff6b6b;
+  margin-left: 2px;
+}
+
+/* Error message styling */
+.error-message {
+  display: block;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Animation for messages */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input wrapper for icon positioning */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.form-control:focus-within .input-icon {
+  color: #667eea;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .input,
+  .textarea {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .input-wrapper .input,
+  .input-wrapper .textarea {
+    padding-left: 2.75rem;
+  }
+
+  .input-icon {
+    left: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-control label {
+    font-size: 0.85rem;
+  }
+
+  .input,
+  .textarea {
+    padding: 0.675rem;
+    font-size: 0.875rem;
+  }
+
+  .input-wrapper .input,
+  .input-wrapper .textarea {
+    padding-left: 2.5rem;
+  }
+}

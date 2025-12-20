@@ -5,7 +5,6 @@ import NavLinks from "./NavLinks.client";
 export default function Navbar() {
   return (
     <nav className={styles.navbar}>
-      {/* Top Bar */}
       <div className={styles.topBar}>
         <div className={styles.topBarContainer}>
           <span>📞 +1 (555) 123-4567</span>
@@ -13,10 +12,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Main Navigation */}
       <div className={styles.mainNav}>
         <div className={styles.navContainer}>
-          {/* Logo */}
           <Link href="/" className={styles.logo}>
             <span className={styles.logoIcon}>🏨</span>
             <div>
@@ -29,7 +26,6 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Mobile Menu Button should be here, before NavLinks */}
           <div className={styles.mobileMenuWrapper}>
             <NavLinks />
           </div>

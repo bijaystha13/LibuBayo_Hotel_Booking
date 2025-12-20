@@ -1,38 +1,123 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 import styles from "./LoginPage.module.css";
+import Input from "../shared/FormElements/Input";
+import {
+  VALIDATOR_MINLENGTH,
+  VALIDATOR_REQUIRE,
+  VALIDATOR_EMAIL,
+} from "../shared/util/validators";
+import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
+
+type FormInput = {
+  value: string;
+  isValid: boolean;
+};
+
+type FormState = {
+  inputs: {
+    [key: string]: FormInput;
+  };
+  isValid: boolean;
+};
+
+type FormAction =
+  | {
+      type: "INPUT_CHANGE";
+      inputId: string;
+      value: string;
+      isValid: boolean;
+    }
+  | {
+      type: "SET_MODE";
+      inputs: { [key: string]: FormInput };
+    };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "INPUT_CHANGE":
+      let formIsValid = true;
+      for (const inputId in state.inputs) {
+        if (!state.inputs[inputId]) continue;
+        if (inputId === action.inputId) {
+          formIsValid = formIsValid && action.isValid;
+        } else {
+          formIsValid = formIsValid && state.inputs[inputId].isValid;
+        }
+      }
+      return {
+        ...state,
+        inputs: {
+          ...state.inputs,
+          [action.inputId]: { value: action.value, isValid: action.isValid },
+        },
+        isValid: formIsValid,
+      };
+    case "SET_MODE":
+      return {
+        ...state,
+        inputs: action.inputs,
+        isValid: false,
+      };
+    default:
+      return state;
+  }
+}
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    name: "",
-    confirmPassword: "",
-  });
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-  };
+  const [formState, dispatch] = useReducer(formReducer, {
+    inputs: {
+      email: {
+        value: "",
+        isValid: false,
+      },
+      password: {
+        value: "",
+        isValid: false,
+      },
+    },
+    isValid: false,
+  });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const inputHandler = useCallback(
+    (id: string, value: string, isValid: boolean) => {
+      dispatch({ type: "INPUT_CHANGE", value: value, isValid, inputId: id });
+    },
+    []
+  );
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log("Form submitted:", formState.inputs);
   };
 
   const toggleMode = () => {
+    if (!isSignUp) {
+      // Switching to Sign Up - add name field
+      dispatch({
+        type: "SET_MODE",
+        inputs: {
+          name: { value: "", isValid: false },
+          email: { value: "", isValid: false },
+          password: { value: "", isValid: false },
+          confirmPassword: { value: "", isValid: false },
+        },
+      });
+    } else {
+      // Switching to Sign In - remove name and confirmPassword
+      dispatch({
+        type: "SET_MODE",
+        inputs: {
+          email: { value: "", isValid: false },
+          password: { value: "", isValid: false },
+        },
+      });
+    }
     setIsSignUp(!isSignUp);
-    setFormData({
-      email: "",
-      password: "",
-      name: "",
-      confirmPassword: "",
-    });
   };
 
   return (
@@ -92,88 +177,61 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className={styles.form}>
+            <form className={styles.form} onSubmit={handleSubmit}>
               {isSignUp && (
-                <div className={styles.inputGroup}>
-                  <label htmlFor="name" className={styles.label}>
-                    Full Name
-                  </label>
-                  <div className={styles.inputWrapper}>
-                    <span className={styles.inputIcon}>👤</span>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className={styles.input}
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-                </div>
+                <Input
+                  element="input"
+                  id="name"
+                  label="Full Name"
+                  type="text"
+                  icon={<FaUser />}
+                  placeholder="Enter your name"
+                  required={true}
+                  validators={[VALIDATOR_REQUIRE()]}
+                  errorText="Please provide your name"
+                  onInput={inputHandler}
+                />
               )}
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="email" className={styles.label}>
-                  Email Address
-                </label>
-                <div className={styles.inputWrapper}>
-                  <span className={styles.inputIcon}>✉️</span>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={styles.input}
-                    placeholder="Enter your email"
-                  />
-                </div>
-              </div>
+              <Input
+                id="email"
+                element="input"
+                label="Email Address"
+                type="email"
+                required={true}
+                icon={<FaEnvelope />}
+                placeholder="Enter your email"
+                validators={[VALIDATOR_REQUIRE(), VALIDATOR_EMAIL()]}
+                errorText="Please provide a valid email address"
+                onInput={inputHandler}
+              />
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="password" className={styles.label}>
-                  Password
-                </label>
-                <div className={styles.inputWrapper}>
-                  <span className={styles.inputIcon}>🔒</span>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={styles.input}
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    className={styles.togglePassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? "🫣" : "🙈"}
-                  </button>
-                </div>
-              </div>
+              <Input
+                id="password"
+                element="input"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                required={true}
+                icon={<FaLock />}
+                placeholder="Enter your password"
+                errorText="Password must be at least 6 characters"
+                validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(6)]}
+                onInput={inputHandler}
+              />
 
               {isSignUp && (
-                <div className={styles.inputGroup}>
-                  <label htmlFor="confirmPassword" className={styles.label}>
-                    Confirm Password
-                  </label>
-                  <div className={styles.inputWrapper}>
-                    <span className={styles.inputIcon}>🔒</span>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className={styles.input}
-                      placeholder="Confirm your password"
-                    />
-                  </div>
-                </div>
+                <Input
+                  id="confirmPassword"
+                  element="input"
+                  label="Confirm Password"
+                  type={showPassword ? "text" : "password"}
+                  required={true}
+                  icon={<FaLock />}
+                  placeholder="Confirm your password"
+                  errorText="Password must be at least 6 characters"
+                  validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(6)]}
+                  onInput={inputHandler}
+                />
               )}
 
               {!isSignUp && (
@@ -188,7 +246,11 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <button onClick={handleSubmit} className={styles.submitBtn}>
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={!formState.isValid}
+              >
                 {isSignUp ? "Create Account" : "Sign In"}
               </button>
 
@@ -206,7 +268,7 @@ export default function LoginPage() {
                   Facebook
                 </button>
               </div>
-            </div>
+            </form>
 
             <div className={styles.toggleMode}>
               <p>
