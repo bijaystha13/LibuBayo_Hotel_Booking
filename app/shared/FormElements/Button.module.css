@@ -1,0 +1,253 @@
+/* Base Button Styles */
+.button {
+  display: inline-block;
+  text-decoration: none;
+  padding: 0.95rem 2rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  font-family: inherit;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+}
+
+.button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4),
+    0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Button Sizes */
+.button--small {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.button--default {
+  padding: 0.95rem 2rem;
+  font-size: 1rem;
+}
+
+.button--large {
+  padding: 1.15rem 2.5rem;
+  font-size: 1.125rem;
+}
+
+/* Inverse Button Style */
+.button--inverse {
+  background: transparent;
+  border: 2px solid #667eea;
+  color: #667eea;
+  box-shadow: none;
+}
+
+.button--inverse::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(102, 126, 234, 0.2),
+    transparent
+  );
+}
+
+.button--inverse:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: #764ba2;
+  color: #764ba2;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.button--inverse:focus {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Danger Button Style */
+.button--danger {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.button--danger::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+}
+
+.button--danger:hover:not(:disabled) {
+  box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5);
+}
+
+.button--danger:focus {
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4),
+    0 0 0 3px rgba(255, 107, 107, 0.3);
+}
+
+/* Danger Inverse */
+.button--danger.button--inverse {
+  background: transparent;
+  border: 2px solid #ff6b6b;
+  color: #ff6b6b;
+  box-shadow: none;
+}
+
+.button--danger.button--inverse::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 107, 0.2),
+    transparent
+  );
+}
+
+.button--danger.button--inverse:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ee5a6f;
+  color: #ee5a6f;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* Link as Button */
+a.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .button--small {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .button--default {
+    padding: 0.85rem 1.75rem;
+    font-size: 0.95rem;
+  }
+
+  .button--large {
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .button--small {
+    padding: 0.55rem 0.875rem;
+    font-size: 0.8rem;
+  }
+
+  .button--default {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .button--large {
+    padding: 0.9rem 1.75rem;
+    font-size: 1rem;
+  }
+}
+
+/* ... existing styles ... */
+
+/* Loading State */
+.button--loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.button--loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: button-spin 0.8s linear infinite;
+}
+
+/* Inverse button loading spinner */
+.button--inverse.button--loading::after {
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  border-top-color: #667eea;
+}
+
+/* Danger button loading spinner */
+.button--danger.button--loading::after {
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-top-color: #ff6b6b;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button--loading {
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.spinner {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -8,6 +8,8 @@ interface InputProps {
   label: string;
   type?: string;
   placeholder?: string;
+  value?: string;
+  valid?: boolean;
   rows?: number;
   icon?: React.ReactNode;
   errorText?: string;
@@ -51,9 +53,9 @@ function inputReducer(state: InputState, action: InputAction) {
 
 export default function Input(props: InputProps) {
   const [inputState, dispatch] = useReducer(inputReducer, {
-    value: "",
+    value: props.value || "",
     isValid: props.validators ? false : true,
-    isTouched: false,
+    isTouched: props.valid || false,
   });
 
   const { id, onInput } = props;

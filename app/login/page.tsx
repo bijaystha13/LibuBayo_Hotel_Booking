@@ -9,6 +9,7 @@ import {
   VALIDATOR_EMAIL,
 } from "../shared/util/validators";
 import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
+import Button from "../shared/FormElements/Button";
 
 type FormInput = {
   value: string;
@@ -67,6 +68,7 @@ function formReducer(state: FormState, action: FormAction): FormState {
 
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [formState, dispatch] = useReducer(formReducer, {
@@ -90,14 +92,30 @@ export default function LoginPage() {
     []
   );
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   console.log("Form submitted:", formState.inputs);
+  // };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Form submitted:", formState.inputs);
+    if (!formState.isValid) return;
+
+    try {
+      setIsLoading(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      console.log(isSignUp ? "Signing up" : "Signing in", formState.inputs);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleMode = () => {
     if (!isSignUp) {
-      // Switching to Sign Up - add name field
       dispatch({
         type: "SET_MODE",
         inputs: {
@@ -108,7 +126,6 @@ export default function LoginPage() {
         },
       });
     } else {
-      // Switching to Sign In - remove name and confirmPassword
       dispatch({
         type: "SET_MODE",
         inputs: {
@@ -246,13 +263,22 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <button
+              {/* <button
                 type="submit"
                 className={styles.submitBtn}
                 disabled={!formState.isValid}
               >
                 {isSignUp ? "Create Account" : "Sign In"}
-              </button>
+              </button> */}
+
+              <Button
+                className={styles.submitBtn}
+                disabled={!formState.isValid}
+                type="submit"
+                loading={isLoading}
+              >
+                {isSignUp ? "Create Account" : "Sign In"}
+              </Button>
 
               <div className={styles.divider}>
                 <span>OR</span>

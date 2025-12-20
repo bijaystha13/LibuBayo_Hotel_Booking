@@ -188,6 +188,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
     inset 0 1px 1px rgba(255, 255, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 12px;
 }
 
 .formCard:hover {
@@ -224,73 +225,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
-}
-
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.inputWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.inputIcon {
-  position: absolute;
-  left: 1rem;
-  font-size: 1.1rem;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.input {
-  width: 100%;
-  padding: 0.875rem 1rem 0.875rem 3.25rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  color: white;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.input:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 0.12);
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-}
-
-.input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.togglePassword {
-  position: absolute;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  font-size: 1.25rem;
-  padding: 0.5rem;
-  transition: all 0.3s ease;
-  z-index: 1;
-}
-
-.togglePassword:hover {
-  color: #667eea;
-  transform: scale(1.1);
 }
 
 /* Remember & Forgot */
@@ -363,17 +297,22 @@
   transition: left 0.6s ease;
 }
 
-.submitBtn:hover {
+.submitBtn:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
 }
 
-.submitBtn:hover::before {
+.submitBtn:hover:not(:disabled)::before {
   left: 100%;
 }
 
-.submitBtn:active {
+.submitBtn:active:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Divider */
@@ -587,11 +526,6 @@
 
   .featureCard p {
     font-size: 0.9rem;
-  }
-
-  .input {
-    padding: 0.875rem 1rem 0.875rem 3.25rem;
-    font-size: 0.95rem;
   }
 
   .submitBtn {
