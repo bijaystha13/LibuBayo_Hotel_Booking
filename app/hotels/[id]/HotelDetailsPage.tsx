@@ -35,7 +35,7 @@ export default function HotelDetailsPage({
   const { isLoading, error, clearError, sendRequest } = useHttpClient();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedAmenityTab, setSelectedAmenityTab] = useState("all");
+  // const [selectedAmenityTab, setSelectedAmenityTab] = useState("all");
 
   useEffect(() => {
     async function fetchHotelDetails() {
@@ -102,7 +102,7 @@ export default function HotelDetailsPage({
       <div className={styles.detailsPage}>
         <div className={styles.errorContainer}>
           <h2>Hotel Not Found</h2>
-          <p>The hotel you're looking for doesn't exist.</p>
+          <p>The hotel you&apos;re looking for doesn&apos;t exist.</p>
           <button onClick={onBack} className={styles.errorButton}>
             Go Back
           </button>
@@ -390,7 +390,7 @@ export default function HotelDetailsPage({
                 <button className={styles.bookButton}>Book Now</button>
 
                 <div className={styles.bookingNote}>
-                  You won't be charged yet
+                  You won&apos;t be charged yet
                 </div>
               </div>
 
