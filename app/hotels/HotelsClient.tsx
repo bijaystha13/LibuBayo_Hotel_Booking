@@ -1,20 +1,73 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useHttpClient } from "../shared/hooks/httpHook";
 import styles from "./HotelsPage.module.css";
 
+interface Hotel {
+  _id: string;
+  name: string;
+  type: string;
+  location: {
+    city: string;
+    country: string;
+  };
+  rating: number;
+  reviewsCount: number;
+  pricePerNight: number;
+  originalPrice?: number;
+  amenities: string[];
+  featured: boolean;
+  image: string[];
+  distance?: string;
+  description?: string;
+}
+
+interface HotelsResponse {
+  success: boolean;
+  data: Hotel[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalHotels: number;
+    hotelsPerPage: number;
+  };
+}
+
 export default function HotelsClient() {
+  const { isLoading, error, clearError, sendRequest } = useHttpClient();
+  const [loadedHotels, setLoadedHotels] = useState<Hotel[]>([]);
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("recommended");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<
+    Record<string, number>
+  >({});
 
   const filters = [
-    { id: "all", label: "All Hotels", count: 24 },
-    { id: "luxury", label: "Luxury", count: 8 },
-    { id: "boutique", label: "Boutique", count: 6 },
-    { id: "resort", label: "Resort", count: 10 },
+    { id: "all", label: "All Hotels", count: loadedHotels.length },
+    {
+      id: "Luxury Resort",
+      label: "Luxury",
+      count: loadedHotels.filter((h) => h.type === "Luxury Resort").length,
+    },
+    {
+      id: "Boutique Hotel",
+      label: "Boutique",
+      count: loadedHotels.filter((h) => h.type === "Boutique Hotel").length,
+    },
+    {
+      id: "Beach Hotel",
+      label: "Beach",
+      count: loadedHotels.filter((h) => h.type === "Beach Hotel").length,
+    },
+    {
+      id: "City Hotel",
+      label: "City",
+      count: loadedHotels.filter((h) => h.type === "City Hotel").length,
+    },
   ];
 
   const sortOptions = [
@@ -24,137 +77,45 @@ export default function HotelsClient() {
     { value: "rating", label: "Highest Rated" },
   ];
 
-  const hotels = [
-    {
-      id: 1,
-      name: "Grand Oceanic Resort",
-      location: "Maldives",
-      category: "luxury",
-      rating: 4.9,
-      reviews: 328,
-      price: 450,
-      image: "🏝️",
-      amenities: ["Ocean View", "Private Beach", "Spa", "Pool"],
-      description: "Luxury overwater villas with stunning ocean views",
-    },
-    {
-      id: 2,
-      name: "Mountain Peak Lodge",
-      location: "Swiss Alps",
-      category: "resort",
-      rating: 4.8,
-      reviews: 256,
-      price: 380,
-      image: "🏔️",
-      amenities: ["Mountain View", "Ski Access", "Restaurant", "Spa"],
-      description: "Alpine luxury resort with panoramic mountain views",
-    },
-    {
-      id: 3,
-      name: "Urban Chic Hotel",
-      location: "New York City",
-      category: "boutique",
-      rating: 4.7,
-      reviews: 412,
-      price: 320,
-      image: "🏙️",
-      amenities: ["City View", "Rooftop Bar", "Gym", "Restaurant"],
-      description: "Modern boutique hotel in the heart of Manhattan",
-    },
-    {
-      id: 4,
-      name: "Desert Oasis Resort",
-      location: "Dubai",
-      category: "luxury",
-      rating: 4.9,
-      reviews: 289,
-      price: 520,
-      image: "🏜️",
-      amenities: ["Desert View", "Infinity Pool", "Spa", "Golf"],
-      description: "Ultra-luxury resort in the Arabian desert",
-    },
-    {
-      id: 5,
-      name: "Tropical Paradise Hotel",
-      location: "Bali",
-      category: "resort",
-      rating: 4.8,
-      reviews: 367,
-      price: 280,
-      image: "🌴",
-      amenities: ["Garden View", "Pool", "Spa", "Beach Access"],
-      description: "Serene tropical resort surrounded by rice paddies",
-    },
-    {
-      id: 6,
-      name: "Historic Manor House",
-      location: "Cotswolds, UK",
-      category: "boutique",
-      rating: 4.6,
-      reviews: 198,
-      price: 240,
-      image: "🏰",
-      amenities: ["Garden View", "Restaurant", "Bar", "Library"],
-      description: "Charming historic property with English countryside views",
-    },
-    {
-      id: 7,
-      name: "Beachfront Paradise",
-      location: "Caribbean",
-      category: "luxury",
-      rating: 4.9,
-      reviews: 445,
-      price: 480,
-      image: "🏖️",
-      amenities: ["Beach View", "Water Sports", "Spa", "Pool"],
-      description: "Exclusive beachfront resort with crystal-clear waters",
-    },
-    {
-      id: 8,
-      name: "City Lights Boutique",
-      location: "Tokyo",
-      category: "boutique",
-      rating: 4.7,
-      reviews: 334,
-      price: 290,
-      image: "🌆",
-      amenities: ["City View", "Rooftop", "Restaurant", "Bar"],
-      description: "Contemporary design hotel in vibrant Shibuya",
-    },
-    {
-      id: 9,
-      name: "Vineyard Estate Hotel",
-      location: "Tuscany",
-      category: "resort",
-      rating: 4.8,
-      reviews: 276,
-      price: 350,
-      image: "🍇",
-      amenities: ["Vineyard View", "Wine Tasting", "Pool", "Restaurant"],
-      description: "Elegant estate hotel among rolling vineyards",
-    },
-  ];
+  useEffect(() => {
+    async function fetchHotels() {
+      try {
+        const responseData = await sendRequest<HotelsResponse>(
+          "http://localhost:5002/api/hotels?limit=50"
+        );
 
-  // Filter hotels based on selected criteria
+        if (responseData?.success && responseData.data) {
+          setLoadedHotels(responseData.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch hotels:", err);
+      }
+    }
+    fetchHotels();
+  }, [sendRequest]);
+
   const filteredHotels = useMemo(() => {
-    const filtered = hotels.filter((hotel) => {
+    const filtered = loadedHotels.filter((hotel) => {
       const matchesFilter =
-        selectedFilter === "all" || hotel.category === selectedFilter;
+        selectedFilter === "all" || hotel.type === selectedFilter;
       const matchesPrice =
-        hotel.price >= priceRange[0] && hotel.price <= priceRange[1];
+        hotel.pricePerNight >= priceRange[0] &&
+        hotel.pricePerNight <= priceRange[1];
       const matchesSearch =
         hotel.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        hotel.location.toLowerCase().includes(searchQuery.toLowerCase());
+        hotel.location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        hotel.location.country
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       return matchesFilter && matchesPrice && matchesSearch;
     });
 
-    // Sort based on selected option
     switch (sortOption) {
       case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => a.pricePerNight - b.pricePerNight);
         break;
       case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => b.pricePerNight - a.pricePerNight);
         break;
       case "rating":
         filtered.sort((a, b) => b.rating - a.rating);
@@ -166,16 +127,53 @@ export default function HotelsClient() {
     }
 
     return filtered;
-  }, [selectedFilter, priceRange, searchQuery, sortOption]);
+  }, [loadedHotels, selectedFilter, priceRange, searchQuery, sortOption]);
 
   const handleSortChange = (value: string) => {
     setSortOption(value);
     setIsDropdownOpen(false);
   };
 
+  const handleNextImage = (hotelId: string, imageCount: number) => {
+    setCurrentImageIndex((prev) => ({
+      ...prev,
+      [hotelId]: ((prev[hotelId] || 0) + 1) % imageCount,
+    }));
+  };
+
+  const handlePrevImage = (hotelId: string, imageCount: number) => {
+    setCurrentImageIndex((prev) => ({
+      ...prev,
+      [hotelId]: ((prev[hotelId] || 0) - 1 + imageCount) % imageCount,
+    }));
+  };
+
   const selectedSortLabel = sortOptions.find(
     (opt) => opt.value === sortOption
   )?.label;
+
+  if (isLoading && loadedHotels.length === 0) {
+    return (
+      <div className={styles.hotelsPage}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Loading hotels...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.hotelsPage}>
+        <div className={styles.errorContainer}>
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={clearError}>Try Again</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.hotelsPage}>
@@ -306,62 +304,130 @@ export default function HotelsClient() {
               </div>
 
               <div className={styles.hotelsGrid}>
-                {filteredHotels.map((hotel) => (
-                  <div key={hotel.id} className={styles.hotelCard}>
-                    <div className={styles.hotelImage}>
-                      <span className={styles.hotelEmoji}>{hotel.image}</span>
-                      <div className={styles.hotelBadge}>
-                        {hotel.category.charAt(0).toUpperCase() +
-                          hotel.category.slice(1)}
+                {filteredHotels.map((hotel) => {
+                  const currentIndex = currentImageIndex[hotel._id] || 0;
+                  return (
+                    <div key={hotel._id} className={styles.hotelCard}>
+                      <div className={styles.hotelImage}>
+                        {hotel.image && hotel.image.length > 0 ? (
+                          <>
+                            <img
+                              src={`http://localhost:5002/${hotel.image[currentIndex]}`}
+                              alt={hotel.name}
+                              className={styles.hotelImageTag}
+                            />
+                            {hotel.image.length > 1 && (
+                              <div className={styles.imageControls}>
+                                <button
+                                  className={styles.imageNav}
+                                  onClick={() =>
+                                    handlePrevImage(
+                                      hotel._id,
+                                      hotel.image.length
+                                    )
+                                  }
+                                >
+                                  ‹
+                                </button>
+                                <div className={styles.imageDots}>
+                                  {hotel.image.map((_, index) => (
+                                    <span
+                                      key={index}
+                                      className={`${styles.dot} ${
+                                        index === currentIndex
+                                          ? styles.activeDot
+                                          : ""
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <button
+                                  className={styles.imageNav}
+                                  onClick={() =>
+                                    handleNextImage(
+                                      hotel._id,
+                                      hotel.image.length
+                                    )
+                                  }
+                                >
+                                  ›
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <span className={styles.hotelEmoji}>🏨</span>
+                        )}
                       </div>
-                    </div>
 
-                    <div className={styles.hotelInfo}>
-                      <div className={styles.hotelHeader}>
-                        <div>
-                          <h3 className={styles.hotelName}>{hotel.name}</h3>
-                          <p className={styles.hotelLocation}>
-                            {hotel.location}
+                      <div className={styles.hotelInfo}>
+                        <div className={styles.hotelHeader}>
+                          <div>
+                            <h3 className={styles.hotelName}>{hotel.name}</h3>
+                            <p className={styles.hotelLocation}>
+                              {hotel.location.city}, {hotel.location.country}
+                            </p>
+                          </div>
+                          <div className={styles.hotelRating}>
+                            <span className={styles.ratingScore}>
+                              ⭐ {hotel.rating}
+                            </span>
+                            <span className={styles.reviewCount}>
+                              ({hotel.reviewsCount} reviews)
+                            </span>
+                          </div>
+                        </div>
+
+                        {hotel.description && (
+                          <p className={styles.hotelDescription}>
+                            {hotel.description.slice(0, 120)}...
                           </p>
-                        </div>
-                        <div className={styles.hotelRating}>
-                          <span className={styles.ratingScore}>
-                            {hotel.rating}
-                          </span>
-                          <span className={styles.reviewCount}>
-                            ({hotel.reviews} reviews)
-                          </span>
-                        </div>
-                      </div>
+                        )}
 
-                      <p className={styles.hotelDescription}>
-                        {hotel.description}
-                      </p>
-
-                      <div className={styles.hotelAmenities}>
-                        {hotel.amenities.map((amenity, i) => (
-                          <span key={i} className={styles.amenityTag}>
-                            {amenity}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className={styles.hotelFooter}>
-                        <div className={styles.hotelPrice}>
-                          <span className={styles.priceLabel}>From</span>
-                          <span className={styles.priceAmount}>
-                            ${hotel.price}
-                          </span>
-                          <span className={styles.priceUnit}>per night</span>
+                        <div className={styles.hotelAmenities}>
+                          {hotel.amenities.slice(0, 4).map((amenity, i) => (
+                            <span key={i} className={styles.amenityTag}>
+                              {amenity}
+                            </span>
+                          ))}
+                          {hotel.amenities.length > 4 && (
+                            <span className={styles.amenityTag}>
+                              +{hotel.amenities.length - 4} more
+                            </span>
+                          )}
                         </div>
-                        <button className={styles.viewButton}>
-                          View Details
-                        </button>
+
+                        <div className={styles.hotelFooter}>
+                          <div className={styles.hotelPrice}>
+                            {hotel.originalPrice && (
+                              <span className={styles.originalPrice}>
+                                ${hotel.originalPrice}
+                              </span>
+                            )}
+                            <div>
+                              <span className={styles.priceLabel}>From </span>
+                              <span className={styles.priceAmount}>
+                                ${hotel.pricePerNight}
+                              </span>
+                              <span className={styles.priceUnit}> /night</span>
+                            </div>
+                          </div>
+                          <button className={styles.viewButton}>
+                            View Details
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+
+              {filteredHotels.length === 0 && (
+                <div className={styles.noResults}>
+                  <h3>No hotels found</h3>
+                  <p>Try adjusting your filters or search query</p>
+                </div>
+              )}
             </main>
           </div>
         </div>

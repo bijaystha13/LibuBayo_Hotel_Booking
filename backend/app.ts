@@ -7,6 +7,7 @@ import { Request, Response, NextFunction } from "express";
 
 import HttpError from "./models/httpError";
 import usersRoutes from "./routes/userRoutes";
+import hotelsRoutes from "./routes/hotelsRoutes";
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ app.use(bodyParser.json());
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use("/api/users", usersRoutes);
+app.use("/api/hotels", hotelsRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
