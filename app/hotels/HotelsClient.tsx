@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useHttpClient } from "../shared/hooks/httpHook";
 import styles from "./HotelsPage.module.css";
+import { useRouter } from "next/navigation";
 
 interface Hotel {
   _id: string;
@@ -35,6 +36,7 @@ interface HotelsResponse {
 }
 
 export default function HotelsClient() {
+  const router = useRouter();
   const { isLoading, error, clearError, sendRequest } = useHttpClient();
   const [loadedHotels, setLoadedHotels] = useState<Hotel[]>([]);
   const [selectedFilter, setSelectedFilter] = useState("all");
@@ -412,7 +414,10 @@ export default function HotelsClient() {
                               <span className={styles.priceUnit}> /night</span>
                             </div>
                           </div>
-                          <button className={styles.viewButton}>
+                          <button
+                            className={styles.viewButton}
+                            onClick={() => router.push(`/hotels/${hotel._id}`)}
+                          >
                             View Details
                           </button>
                         </div>
