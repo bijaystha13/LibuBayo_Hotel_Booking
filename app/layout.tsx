@@ -31,6 +31,8 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          <div id="backdrop-hook"></div>
+          <div id="modal-hook"></div>
         </Providers>
       </body>
     </html>
