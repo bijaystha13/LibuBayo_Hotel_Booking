@@ -108,7 +108,11 @@ export default function LoginPage() {
         console.log("Login Response:", responseData);
 
         // Store token and userId in context immediately
-        authCtx.login(responseData.userId, responseData.token);
+        authCtx.login(
+          responseData.user.id,
+          responseData.token,
+          responseData.user.name
+        );
 
         // Show success message
         setModalMessage("Login successful! Redirecting...");

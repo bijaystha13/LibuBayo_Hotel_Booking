@@ -10,23 +10,29 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [name, setName] = useState<string | null>(null);
 
-  const login = useCallback((uid: string, token: string) => {
+  const login = useCallback((uid: string, token: string, name: string) => {
     setToken(token);
     setUserId(uid);
-    localStorage.setItem("userData", JSON.stringify({ userId: uid, token }));
+    setName(name);
+    localStorage.setItem(
+      "userData",
+      JSON.stringify({ userId: uid, token, name })
+    );
   }, []);
 
   const logout = () => {
     setToken(null);
     setUserId(null);
+    setName(null);
     localStorage.removeItem("userData");
   };
 
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem("userData"));
     if (storedData && storedData.token) {
-      login(storedData.userId, storedData.token);
+      login(storedData.userId, storedData.token, storedData.name);
     }
     setIsInitialized(true);
   }, [login]);
@@ -51,6 +57,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     token,
     login,
     logout,
+    name,
   };
 
   if (!isInitialized) {
