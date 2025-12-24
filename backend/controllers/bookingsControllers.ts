@@ -1,15 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-
 import Bookings from "../models/Bookings";
 import HttpError from "../models/httpError";
 import Users from "../models/Users";
 import Hotels from "../models/Hotels";
 import mongoose from "mongoose";
-
-interface BookingModel {
-  user: string;
-}
 
 export async function createBooking(
   req: Request<Record<string, never>>,
@@ -23,9 +18,7 @@ export async function createBooking(
     );
   }
 
-  const { user, hotel, checkInDate, checkOutDate, guests, price, tax } =
-    req.body;
-
+  const { user, hotel, checkInDate, checkOutDate, guests, tax } = req.body;
   const checkIn = new Date(checkInDate);
   const checkOut = new Date(checkOutDate);
 
@@ -74,26 +67,58 @@ export async function createBooking(
       );
     }
 
+    // Calculate price breakdown
+    const nights = Math.ceil(
+      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    const pricePerNight = hotelExists.pricePerNight;
+    const priceBeforeTax = pricePerNight * nights;
+    const taxPercentage = tax || 10;
+    const taxAmount = (priceBeforeTax * taxPercentage) / 100;
+    const priceAfterTax = priceBeforeTax + taxAmount;
+
     const createdBooking = new Bookings({
       user,
       hotel,
       checkInDate: checkIn,
       checkOutDate: checkOut,
       guests,
-      price,
-      tax,
+
+      // New detailed price fields
+      pricePerNight: pricePerNight,
+      numberOfNights: nights,
+      priceBeforeTax: priceBeforeTax,
+      taxPercentage: taxPercentage,
+      taxAmount: taxAmount,
+      priceAfterTax: priceAfterTax,
+
+      // Keep for backwards compatibility
+      price: priceBeforeTax,
+      tax: taxPercentage,
     });
 
     await createdBooking.save({ session });
 
-    userExists.bookings.push(createdBooking._id);
-
+    userExists.bookings.push(createdBooking._id as mongoose.Types.ObjectId);
     await userExists.save({ session });
 
     await session.commitTransaction();
 
-    res.status(201).json({ booking: createdBooking });
-  } catch {
+    res.status(201).json({
+      success: true,
+      booking: createdBooking,
+      priceBreakdown: {
+        pricePerNight: pricePerNight,
+        numberOfNights: nights,
+        priceBeforeTax: priceBeforeTax,
+        taxPercentage: taxPercentage,
+        taxAmount: taxAmount,
+        priceAfterTax: priceAfterTax,
+        totalPrice: createdBooking.totalPrice,
+      },
+    });
+  } catch (err) {
+    console.log(err);
     await session.abortTransaction();
     const error = new HttpError(
       "Booking hotel failed, please try again later",
@@ -103,4 +128,42 @@ export async function createBooking(
   } finally {
     session.endSession();
   }
+}
+
+export async function getBookingByUserId(
+  req: Request<Record<string, never>>,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.params.bid;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return next(new HttpError("Invalid user id", 400));
+  }
+
+  let bookings;
+
+  try {
+    // bookings = await Bookings.find({ user: userId }).populate("hotel");
+    bookings = await Bookings.find({ user: userId }).populate({
+      path: "hotel",
+      select: "name type image pricePerNight",
+    });
+  } catch {
+    const error = new HttpError(
+      "Fetching bookings failed, please try again later",
+      500
+    );
+    return next(error);
+  }
+
+  if (!bookings || bookings.length === 0) {
+    return next(
+      new HttpError("Could not find the bookings for the provided user id", 404)
+    );
+  }
+
+  res.json({
+    bookings: bookings.map((booking) => booking.toObject({ getters: true })),
+  });
 }

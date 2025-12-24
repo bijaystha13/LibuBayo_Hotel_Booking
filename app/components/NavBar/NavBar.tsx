@@ -33,7 +33,7 @@ export default function Navbar() {
 
           <div className={styles.navRight}>
             {/* <button className={styles.searchBtn}>🔍</button> */}
-            <AuthButton />
+            {/* <AuthButton /> */}
           </div>
         </div>
       </div>

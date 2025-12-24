@@ -5,9 +5,11 @@ import { createContext } from "react";
 type AuthContextType = {
   isLoggedIn: boolean;
   token: string | null;
-  login: (uid: string, token: string, name: string) => void;
+  login: (uid: string, token: string, name: string, role: string) => void;
   logout: () => void;
   name: string | null;
+  userId: string | null;
+  role: string | null;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -16,4 +18,6 @@ export const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   name: null,
+  userId: null,
+  role: null,
 });

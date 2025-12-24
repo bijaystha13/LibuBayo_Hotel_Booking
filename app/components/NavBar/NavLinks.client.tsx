@@ -586,7 +586,7 @@ export default function NavLinks() {
               </li>
               <li className={`${styles.navItem} ${styles.mobileOnly}`}>
                 <Link
-                  href="/user/booking"
+                  href="/user/bookings"
                   className={styles.navLink}
                   onClick={handleLinkClick}
                 >
@@ -820,7 +820,7 @@ export default function NavLinks() {
                   </Link>
 
                   <Link
-                    href="/user/booking"
+                    href="/user/bookings"
                     className={styles.userDropdownItem}
                     onClick={() => setUserMenuOpen(false)}
                   >
@@ -942,7 +942,7 @@ export default function NavLinks() {
           </>
         ) : (
           // Desktop Login Button for logged out users
-          <Link href="/login" className={styles.desktopLoginBtn}>
+          <Link href="/login" className={styles.signInBtn}>
             Login
           </Link>
         )}

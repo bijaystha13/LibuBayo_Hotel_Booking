@@ -529,7 +529,7 @@ export default function HotelsClient() {
   useEffect(() => {
     async function fetchHotels() {
       try {
-        const responseData = await sendRequest<HotelsResponse>(
+        const responseData = await sendRequest(
           `http://localhost:5002/api/hotels?limit=${hotelsPerPage}&page=${currentPage}`
         );
 

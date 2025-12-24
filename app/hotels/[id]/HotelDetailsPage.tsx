@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useRouter } from "next/navigation";
 import { useHttpClient } from "@/app/shared/hooks/httpHook";
 import styles from "./HotelsDetailsPage.module.css";
+import { AuthContext } from "@/app/shared/Context/AuthContext";
 
 interface Hotel {
   _id: string;
@@ -23,6 +25,16 @@ interface Hotel {
   description?: string;
 }
 
+interface PriceBreakdown {
+  pricePerNight: number;
+  numberOfNights: number;
+  priceBeforeTax: number;
+  taxPercentage: number;
+  taxAmount: number;
+  priceAfterTax: number;
+  totalPrice: number;
+}
+
 interface HotelDetailsPageProps {
   hotelId: string;
   onBack: () => void;
@@ -32,10 +44,53 @@ export default function HotelDetailsPage({
   hotelId,
   onBack,
 }: HotelDetailsPageProps) {
+  const router = useRouter();
   const { isLoading, error, clearError, sendRequest } = useHttpClient();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // const [selectedAmenityTab, setSelectedAmenityTab] = useState("all");
+  const authCtx = useContext(AuthContext);
+
+  // Booking form state
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
+  const [guests, setGuests] = useState(1);
+  const [taxPercentage, setTaxPercentage] = useState(10); // Default 10% tax
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(
+    null
+  );
+
+  // Calculate estimated price breakdown before booking
+  const calculateEstimatedPrice = () => {
+    if (!hotel || !checkInDate || !checkOutDate) return null;
+
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+
+    if (checkOut <= checkIn) return null;
+
+    const nights = Math.ceil(
+      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const priceBeforeTax = hotel.pricePerNight * nights;
+    const taxAmount = (priceBeforeTax * taxPercentage) / 100;
+    const priceAfterTax = priceBeforeTax + taxAmount;
+
+    return {
+      pricePerNight: hotel.pricePerNight,
+      numberOfNights: nights,
+      priceBeforeTax,
+      taxPercentage,
+      taxAmount,
+      priceAfterTax,
+    };
+  };
+
+  const estimatedPrice = calculateEstimatedPrice();
 
   useEffect(() => {
     async function fetchHotelDetails() {
@@ -53,6 +108,76 @@ export default function HotelDetailsPage({
     }
     fetchHotelDetails();
   }, [hotelId, sendRequest]);
+
+  const handleBooking = async () => {
+    // Basic validation
+    if (!checkInDate || !checkOutDate) {
+      setBookingError("Please select check-in and check-out dates");
+      return;
+    }
+
+    if (!hotel) {
+      setBookingError("Hotel information not available");
+      return;
+    }
+
+    if (!authCtx.userId) {
+      setBookingError("Please log in to book a hotel");
+      return;
+    }
+
+    const userId = authCtx.userId;
+
+    setBookingLoading(true);
+    setBookingError(null);
+    setBookingSuccess(false);
+    setPriceBreakdown(null);
+
+    try {
+      const bookingData = {
+        user: userId,
+        hotel: hotel._id,
+        checkInDate: checkInDate,
+        checkOutDate: checkOutDate,
+        guests: guests,
+        tax: taxPercentage,
+      };
+
+      console.log("Sending booking data:", bookingData);
+
+      const responseData = await sendRequest(
+        "http://localhost:5002/api/booking",
+        "POST",
+        JSON.stringify(bookingData),
+        {
+          "Content-Type": "application/json",
+        }
+      );
+
+      console.log("Response:", responseData);
+
+      if (responseData?.booking && responseData?.priceBreakdown) {
+        setBookingSuccess(true);
+        setPriceBreakdown(responseData.priceBreakdown);
+        console.log("Booking created:", responseData.booking);
+        console.log("Price breakdown:", responseData.priceBreakdown);
+
+        // Navigate to bookings page after 2 seconds
+        setTimeout(() => {
+          router.push("/user/bookings");
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Booking error:", err);
+      if (err instanceof Error) {
+        setBookingError(err.message);
+      } else {
+        setBookingError("Failed to create booking. Please try again.");
+      }
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   const handleNextImage = () => {
     if (hotel && hotel.image.length > 0) {
@@ -113,6 +238,19 @@ export default function HotelDetailsPage({
 
   return (
     <div className={styles.detailsPage}>
+      {/* Full-Screen Redirecting Overlay */}
+      {redirecting && (
+        <div className={styles.fullScreenOverlay}>
+          <div className={styles.overlayContent}>
+            <div className={styles.largeSpinner}></div>
+            <h2 className={styles.overlayTitle}>Booking Confirmed!</h2>
+            <p className={styles.overlayText}>
+              Redirecting to your bookings...
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className={styles.container}>
         {/* Back Button */}
         <button onClick={onBack} className={styles.backButton}>
@@ -357,6 +495,67 @@ export default function HotelDetailsPage({
                 </div>
               </div>
 
+              {/* Booking Success Message with Price Breakdown */}
+              {bookingSuccess && priceBreakdown && (
+                <div className={styles.successMessage}>
+                  {!redirecting ? (
+                    <>
+                      <div className={styles.successHeader}>
+                        ✅ Booking created successfully!
+                      </div>
+                      <div className={styles.priceBreakdownCard}>
+                        <h3 className={styles.breakdownTitle}>
+                          Price Breakdown
+                        </h3>
+                        <div className={styles.breakdownItems}>
+                          <div className={styles.breakdownItem}>
+                            <span>Price per night:</span>
+                            <span>
+                              ${priceBreakdown.pricePerNight.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className={styles.breakdownItem}>
+                            <span>Number of nights:</span>
+                            <span>{priceBreakdown.numberOfNights}</span>
+                          </div>
+                          <div className={styles.breakdownItem}>
+                            <span>Subtotal (before tax):</span>
+                            <span className={styles.subtotal}>
+                              ${priceBreakdown.priceBeforeTax.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className={styles.breakdownItem}>
+                            <span>Tax ({priceBreakdown.taxPercentage}%):</span>
+                            <span>+${priceBreakdown.taxAmount.toFixed(2)}</span>
+                          </div>
+                          <div className={styles.breakdownDivider}></div>
+                          <div
+                            className={`${styles.breakdownItem} ${styles.totalRow}`}
+                          >
+                            <span>Total (after tax):</span>
+                            <span className={styles.totalPrice}>
+                              ${priceBreakdown.priceAfterTax.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className={styles.redirectingContainer}>
+                      <div className={styles.redirectSpinner}></div>
+                      <div className={styles.redirectText}>
+                        Redirecting to your bookings...
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Booking Error Message */}
+              {bookingError && (
+                <div className={styles.errorMessage}>❌ {bookingError}</div>
+              )}
+
               <div className={styles.bookingForm}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Check-in</label>
@@ -364,6 +563,8 @@ export default function HotelDetailsPage({
                     type="date"
                     className={styles.formInput}
                     min={new Date().toISOString().split("T")[0]}
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
                   />
                 </div>
 
@@ -373,12 +574,18 @@ export default function HotelDetailsPage({
                     type="date"
                     className={styles.formInput}
                     min={new Date().toISOString().split("T")[0]}
+                    value={checkOutDate}
+                    onChange={(e) => setCheckOutDate(e.target.value)}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Guests</label>
-                  <select className={styles.formInput}>
+                  <select
+                    className={styles.formInput}
+                    value={guests}
+                    onChange={(e) => setGuests(parseInt(e.target.value))}
+                  >
                     <option value="1">1 Guest</option>
                     <option value="2">2 Guests</option>
                     <option value="3">3 Guests</option>
@@ -387,7 +594,60 @@ export default function HotelDetailsPage({
                   </select>
                 </div>
 
-                <button className={styles.bookButton}>Book Now</button>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Tax Percentage (%)</label>
+                  <input
+                    type="number"
+                    className={styles.formInput}
+                    value={taxPercentage}
+                    onChange={(e) =>
+                      setTaxPercentage(
+                        Math.max(
+                          0,
+                          Math.min(100, parseInt(e.target.value) || 0)
+                        )
+                      )
+                    }
+                    min="0"
+                    max="100"
+                    step="1"
+                  />
+                </div>
+
+                {/* Estimated Price Breakdown */}
+                {estimatedPrice && (
+                  <div className={styles.estimatedPriceCard}>
+                    <h4 className={styles.estimatedTitle}>Estimated Price</h4>
+                    <div className={styles.estimatedItems}>
+                      <div className={styles.estimatedItem}>
+                        <span>
+                          ${estimatedPrice.pricePerNight.toFixed(2)} ×{" "}
+                          {estimatedPrice.numberOfNights} nights
+                        </span>
+                        <span>${estimatedPrice.priceBeforeTax.toFixed(2)}</span>
+                      </div>
+                      <div className={styles.estimatedItem}>
+                        <span>Tax ({estimatedPrice.taxPercentage}%)</span>
+                        <span>${estimatedPrice.taxAmount.toFixed(2)}</span>
+                      </div>
+                      <div className={styles.estimatedDivider}></div>
+                      <div
+                        className={`${styles.estimatedItem} ${styles.estimatedTotal}`}
+                      >
+                        <span>Total</span>
+                        <span>${estimatedPrice.priceAfterTax.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  className={styles.bookButton}
+                  onClick={handleBooking}
+                  disabled={bookingLoading}
+                >
+                  {bookingLoading ? "Processing..." : "Book Now"}
+                </button>
 
                 <div className={styles.bookingNote}>
                   You won&apos;t be charged yet

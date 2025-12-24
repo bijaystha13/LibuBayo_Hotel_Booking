@@ -11,28 +11,39 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [name, setName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
-  const login = useCallback((uid: string, token: string, name: string) => {
-    setToken(token);
-    setUserId(uid);
-    setName(name);
-    localStorage.setItem(
-      "userData",
-      JSON.stringify({ userId: uid, token, name })
-    );
-  }, []);
+  const login = useCallback(
+    (uid: string, token: string, name: string, role: string) => {
+      setToken(token);
+      setUserId(uid);
+      setName(name);
+      setRole(role);
+      localStorage.setItem(
+        "userData",
+        JSON.stringify({ userId: uid, token, name })
+      );
+    },
+    []
+  );
 
   const logout = () => {
     setToken(null);
     setUserId(null);
     setName(null);
+    setRole(null);
     localStorage.removeItem("userData");
   };
 
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem("userData"));
     if (storedData && storedData.token) {
-      login(storedData.userId, storedData.token, storedData.name);
+      login(
+        storedData.userId,
+        storedData.token,
+        storedData.name,
+        storedData.role
+      );
     }
     setIsInitialized(true);
   }, [login]);
@@ -58,6 +69,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     login,
     logout,
     name,
+    userId,
+    role,
   };
 
   if (!isInitialized) {
