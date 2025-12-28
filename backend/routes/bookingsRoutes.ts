@@ -4,6 +4,7 @@ import { check } from "express-validator";
 import {
   createBooking,
   getBookingByUserId,
+  deleteBooking,
 } from "../controllers/bookingsControllers";
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.post(
 );
 
 router.get("/:bid", getBookingByUserId);
+router.delete("/:bid", deleteBooking);
 
 export default router;

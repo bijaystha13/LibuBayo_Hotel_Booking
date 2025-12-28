@@ -84,7 +84,6 @@ export async function createBooking(
       checkOutDate: checkOut,
       guests,
 
-      // New detailed price fields
       pricePerNight: pricePerNight,
       numberOfNights: nights,
       priceBeforeTax: priceBeforeTax,
@@ -92,7 +91,6 @@ export async function createBooking(
       taxAmount: taxAmount,
       priceAfterTax: priceAfterTax,
 
-      // Keep for backwards compatibility
       price: priceBeforeTax,
       tax: taxPercentage,
     });
@@ -144,7 +142,6 @@ export async function getBookingByUserId(
   let bookings;
 
   try {
-    // bookings = await Bookings.find({ user: userId }).populate("hotel");
     bookings = await Bookings.find({ user: userId }).populate({
       path: "hotel",
       select: "name type image pricePerNight",
@@ -166,4 +163,50 @@ export async function getBookingByUserId(
   res.json({
     bookings: bookings.map((booking) => booking.toObject({ getters: true })),
   });
+}
+
+export async function deleteBooking(
+  req: Request<Record<string, never>>,
+  res: Response,
+  next: NextFunction
+) {
+  const bookingId = req.params.bid;
+
+  if (!bookingId) {
+    const error = new HttpError("Booking ID is required", 400);
+    return next(error);
+  }
+
+  try {
+    const booking = await Bookings.findByIdAndDelete(bookingId);
+
+    if (!booking) {
+      const error = new HttpError(
+        `Booking with ID ${bookingId} not found`,
+        404
+      );
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: "Booking deleted successfully",
+      deletedBookingId: bookingId,
+    });
+  } catch (error: unknown) {
+    // Type guard to check if error is an object with a name property
+    if (
+      error instanceof Error &&
+      "name" in error &&
+      error.name === "CastError"
+    ) {
+      const err = new HttpError("Invalid booking ID format", 400);
+      return next(err);
+    }
+
+    const httpError = new HttpError(
+      "Something went wrong, could not delete the booking",
+      500
+    );
+    return next(httpError);
+  }
 }
