@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { useHttpClient } from "@/app/shared/hooks/httpHook";
 import styles from "./HotelsDetailsPage.module.css";
 import { AuthContext } from "@/app/shared/Context/AuthContext";
@@ -49,21 +50,18 @@ export default function HotelDetailsPage({
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const authCtx = useContext(AuthContext);
+  const [networkError, setNetworkError] = useState(false);
 
-  // Booking form state
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [guests, setGuests] = useState(1);
-  const [taxPercentage, setTaxPercentage] = useState(10); // Default 10% tax
+  const [taxPercentage, setTaxPercentage] = useState(10);
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [redirecting, setRedirecting] = useState(false);
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(
     null
   );
 
-  // Calculate estimated price breakdown before booking
   const calculateEstimatedPrice = () => {
     if (!hotel || !checkInDate || !checkOutDate) return null;
 
@@ -93,43 +91,74 @@ export default function HotelDetailsPage({
   const estimatedPrice = calculateEstimatedPrice();
 
   useEffect(() => {
+    toast.dismiss();
+  }, []);
+
+  useEffect(() => {
     async function fetchHotelDetails() {
       try {
+        setNetworkError(false);
         const responseData = await sendRequest(
           `http://localhost:5002/api/hotels/${hotelId}`
         );
 
         if (responseData?.success && responseData.data) {
           setHotel(responseData.data);
+
+          if (networkError) {
+            toast.success("Connection restored! Hotel details loaded.");
+          }
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch hotel details:", err);
+
+        if (
+          err.isNetworkError ||
+          (err.message && err.message.includes("connect"))
+        ) {
+          setNetworkError(true);
+          toast.error(
+            err.message || "Unable to connect. Please check your connection.",
+            {
+              autoClose: false,
+            }
+          );
+        } else {
+          toast.error(err.message || "Failed to load hotel details");
+        }
       }
     }
     fetchHotelDetails();
   }, [hotelId, sendRequest]);
 
   const handleBooking = async () => {
-    // Basic validation
     if (!checkInDate || !checkOutDate) {
-      setBookingError("Please select check-in and check-out dates");
+      toast.error("Please select check-in and check-out dates");
+      return;
+    }
+
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+
+    if (checkOut <= checkIn) {
+      toast.error("Check-out date must be after check-in date");
       return;
     }
 
     if (!hotel) {
-      setBookingError("Hotel information not available");
+      toast.error("Hotel information not available");
       return;
     }
 
     if (!authCtx.userId) {
-      setBookingError("Please log in to book a hotel");
+      toast.error("Please log in to book a hotel");
+      router.push("/login");
       return;
     }
 
     const userId = authCtx.userId;
 
     setBookingLoading(true);
-    setBookingError(null);
     setBookingSuccess(false);
     setPriceBreakdown(null);
 
@@ -159,23 +188,63 @@ export default function HotelDetailsPage({
       if (responseData?.booking && responseData?.priceBreakdown) {
         setBookingSuccess(true);
         setPriceBreakdown(responseData.priceBreakdown);
-        console.log("Booking created:", responseData.booking);
-        console.log("Price breakdown:", responseData.priceBreakdown);
 
-        // Navigate to bookings page after 2 seconds
+        toast.success("🎉 Booking confirmed successfully!", {
+          autoClose: 2000,
+        });
+
         setTimeout(() => {
           router.push("/user/bookings");
-        }, 1000);
+        }, 2000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Booking error:", err);
-      if (err instanceof Error) {
-        setBookingError(err.message);
+
+      if (
+        err.isNetworkError ||
+        (err.message && err.message.includes("connect"))
+      ) {
+        toast.error(
+          "Unable to complete booking. Please check your connection and try again.",
+          {
+            autoClose: false,
+          }
+        );
       } else {
-        setBookingError("Failed to create booking. Please try again.");
+        toast.error(
+          err.message || "Failed to create booking. Please try again."
+        );
       }
     } finally {
       setBookingLoading(false);
+    }
+  };
+
+  const handleRetry = async () => {
+    clearError();
+    setNetworkError(false);
+    toast.dismiss();
+
+    try {
+      const responseData = await sendRequest(
+        `http://localhost:5002/api/hotels/${hotelId}`
+      );
+
+      if (responseData?.success && responseData.data) {
+        setHotel(responseData.data);
+        toast.success("Hotel details loaded successfully!");
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch hotel details:", err);
+
+      if (err.message.includes("Cannot connect to server")) {
+        setNetworkError(true);
+        toast.error("Backend server is still not running.", {
+          autoClose: false,
+        });
+      } else {
+        toast.error(err.message || "Failed to load hotel details");
+      }
     }
   };
 
@@ -208,15 +277,59 @@ export default function HotelDetailsPage({
     );
   }
 
+  if (networkError || (error && error.includes("connect"))) {
+    return (
+      <div className={styles.detailsPage}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>📡</div>
+          <h2>Connection Error</h2>
+          <p className={styles.errorMessage}>
+            Unable to connect to the server. This could be due to:
+          </p>
+          <div className={styles.errorDetails}>
+            <ul>
+              <li>No internet connection</li>
+              <li>Server is temporarily unavailable</li>
+              <li>Network firewall blocking the connection</li>
+              <li>Server maintenance in progress</li>
+            </ul>
+          </div>
+          <div className={styles.troubleshootBox}>
+            <p className={styles.troubleshootTitle}>💡 Quick fixes:</p>
+            <ul className={styles.troubleshootList}>
+              <li>Check your internet connection</li>
+              <li>Try refreshing the page</li>
+              <li>Wait a moment and try again</li>
+            </ul>
+          </div>
+          <div className={styles.errorActions}>
+            <button onClick={handleRetry} className={styles.retryButton}>
+              🔄 Retry Connection
+            </button>
+            <button onClick={onBack} className={styles.backButton}>
+              ← Back to Hotels
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className={styles.detailsPage}>
         <div className={styles.errorContainer}>
-          <h2>Error</h2>
-          <p>{error}</p>
-          <button onClick={clearError} className={styles.errorButton}>
-            Try Again
-          </button>
+          <div className={styles.errorIcon}>⚠️</div>
+          <h2>Error Loading Hotel</h2>
+          <p className={styles.errorMessage}>{error}</p>
+          <div className={styles.errorActions}>
+            <button onClick={handleRetry} className={styles.retryButton}>
+              Try Again
+            </button>
+            <button onClick={onBack} className={styles.backButton}>
+              Back to Hotels
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -226,10 +339,13 @@ export default function HotelDetailsPage({
     return (
       <div className={styles.detailsPage}>
         <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>🏨</div>
           <h2>Hotel Not Found</h2>
-          <p>The hotel you&apos;re looking for doesn&apos;t exist.</p>
-          <button onClick={onBack} className={styles.errorButton}>
-            Go Back
+          <p className={styles.errorMessage}>
+            The hotel you&apos;re looking for doesn&apos;t exist.
+          </p>
+          <button onClick={onBack} className={styles.backButton}>
+            Back to Hotels
           </button>
         </div>
       </div>
@@ -238,21 +354,7 @@ export default function HotelDetailsPage({
 
   return (
     <div className={styles.detailsPage}>
-      {/* Full-Screen Redirecting Overlay */}
-      {redirecting && (
-        <div className={styles.fullScreenOverlay}>
-          <div className={styles.overlayContent}>
-            <div className={styles.largeSpinner}></div>
-            <h2 className={styles.overlayTitle}>Booking Confirmed!</h2>
-            <p className={styles.overlayText}>
-              Redirecting to your bookings...
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className={styles.container}>
-        {/* Back Button */}
         <button onClick={onBack} className={styles.backButton}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path
@@ -266,7 +368,6 @@ export default function HotelDetailsPage({
           Back to Hotels
         </button>
 
-        {/* Hotel Header */}
         <div className={styles.hotelHeader}>
           <div className={styles.headerLeft}>
             <h1 className={styles.hotelName}>{hotel.name}</h1>
@@ -304,7 +405,6 @@ export default function HotelDetailsPage({
           </div>
         </div>
 
-        {/* Image Gallery */}
         <div className={styles.imageGallery}>
           <div className={styles.mainImageContainer}>
             {hotel.image && hotel.image.length > 0 ? (
@@ -367,7 +467,6 @@ export default function HotelDetailsPage({
             )}
           </div>
 
-          {/* Thumbnails */}
           {hotel.image && hotel.image.length > 1 && (
             <div className={styles.thumbnailContainer}>
               {hotel.image.map((img, index) => (
@@ -388,14 +487,10 @@ export default function HotelDetailsPage({
           )}
         </div>
 
-        {/* Content Grid */}
         <div className={styles.contentGrid}>
-          {/* Left Column - Details */}
           <div className={styles.leftColumn}>
-            {/* Type Badge */}
             <div className={styles.typeBadge}>{hotel.type}</div>
 
-            {/* Description */}
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>About this hotel</h2>
               <p className={styles.description}>
@@ -408,7 +503,6 @@ export default function HotelDetailsPage({
               </p>
             </div>
 
-            {/* Amenities */}
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Amenities</h2>
               <div className={styles.amenitiesGrid}>
@@ -435,7 +529,6 @@ export default function HotelDetailsPage({
               </div>
             </div>
 
-            {/* Location */}
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Location</h2>
               <div className={styles.locationCard}>
@@ -471,7 +564,6 @@ export default function HotelDetailsPage({
             </div>
           </div>
 
-          {/* Right Column - Booking Card */}
           <div className={styles.rightColumn}>
             <div className={styles.bookingCard}>
               <div className={styles.priceSection}>
@@ -495,65 +587,44 @@ export default function HotelDetailsPage({
                 </div>
               </div>
 
-              {/* Booking Success Message with Price Breakdown */}
               {bookingSuccess && priceBreakdown && (
                 <div className={styles.successMessage}>
-                  {!redirecting ? (
-                    <>
-                      <div className={styles.successHeader}>
-                        ✅ Booking created successfully!
+                  <div className={styles.successHeader}>
+                    ✅ Booking created successfully!
+                  </div>
+                  <div className={styles.priceBreakdownCard}>
+                    <h3 className={styles.breakdownTitle}>Price Breakdown</h3>
+                    <div className={styles.breakdownItems}>
+                      <div className={styles.breakdownItem}>
+                        <span>Price per night:</span>
+                        <span>${priceBreakdown.pricePerNight.toFixed(2)}</span>
                       </div>
-                      <div className={styles.priceBreakdownCard}>
-                        <h3 className={styles.breakdownTitle}>
-                          Price Breakdown
-                        </h3>
-                        <div className={styles.breakdownItems}>
-                          <div className={styles.breakdownItem}>
-                            <span>Price per night:</span>
-                            <span>
-                              ${priceBreakdown.pricePerNight.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className={styles.breakdownItem}>
-                            <span>Number of nights:</span>
-                            <span>{priceBreakdown.numberOfNights}</span>
-                          </div>
-                          <div className={styles.breakdownItem}>
-                            <span>Subtotal (before tax):</span>
-                            <span className={styles.subtotal}>
-                              ${priceBreakdown.priceBeforeTax.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className={styles.breakdownItem}>
-                            <span>Tax ({priceBreakdown.taxPercentage}%):</span>
-                            <span>+${priceBreakdown.taxAmount.toFixed(2)}</span>
-                          </div>
-                          <div className={styles.breakdownDivider}></div>
-                          <div
-                            className={`${styles.breakdownItem} ${styles.totalRow}`}
-                          >
-                            <span>Total (after tax):</span>
-                            <span className={styles.totalPrice}>
-                              ${priceBreakdown.priceAfterTax.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
+                      <div className={styles.breakdownItem}>
+                        <span>Number of nights:</span>
+                        <span>{priceBreakdown.numberOfNights}</span>
                       </div>
-                    </>
-                  ) : (
-                    <div className={styles.redirectingContainer}>
-                      <div className={styles.redirectSpinner}></div>
-                      <div className={styles.redirectText}>
-                        Redirecting to your bookings...
+                      <div className={styles.breakdownItem}>
+                        <span>Subtotal (before tax):</span>
+                        <span className={styles.subtotal}>
+                          ${priceBreakdown.priceBeforeTax.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className={styles.breakdownItem}>
+                        <span>Tax ({priceBreakdown.taxPercentage}%):</span>
+                        <span>+${priceBreakdown.taxAmount.toFixed(2)}</span>
+                      </div>
+                      <div className={styles.breakdownDivider}></div>
+                      <div
+                        className={`${styles.breakdownItem} ${styles.totalRow}`}
+                      >
+                        <span>Total (after tax):</span>
+                        <span className={styles.totalPrice}>
+                          ${priceBreakdown.priceAfterTax.toFixed(2)}
+                        </span>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              )}
-
-              {/* Booking Error Message */}
-              {bookingError && (
-                <div className={styles.errorMessage}>❌ {bookingError}</div>
               )}
 
               <div className={styles.bookingForm}>
@@ -614,7 +685,6 @@ export default function HotelDetailsPage({
                   />
                 </div>
 
-                {/* Estimated Price Breakdown */}
                 {estimatedPrice && (
                   <div className={styles.estimatedPriceCard}>
                     <h4 className={styles.estimatedTitle}>Estimated Price</h4>
@@ -646,7 +716,14 @@ export default function HotelDetailsPage({
                   onClick={handleBooking}
                   disabled={bookingLoading}
                 >
-                  {bookingLoading ? "Processing..." : "Book Now"}
+                  {bookingLoading ? (
+                    <>
+                      <span className={styles.buttonSpinner}></span>
+                      Processing...
+                    </>
+                  ) : (
+                    "Book Now"
+                  )}
                 </button>
 
                 <div className={styles.bookingNote}>

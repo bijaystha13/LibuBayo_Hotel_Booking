@@ -726,3 +726,529 @@
   color: white !important;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
+
+/* Add these styles to your HotelsPage.module.css */
+
+/* Error Container Styles */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 2rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.errorIcon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.errorContainer h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+}
+
+.errorMessage {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.errorCode {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  color: #e53e3e;
+  font-size: 0.95em;
+}
+
+.errorDetails {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.errorDetailsTitle {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #333;
+  margin-top: 0;
+}
+
+.errorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.errorList li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #555;
+}
+
+.errorList li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #e53e3e;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.commandBox {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.commandTitle {
+  color: #a0aec0;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.commandCode {
+  color: #48bb78;
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.errorActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.retryButton {
+  padding: 0.875rem 2rem;
+  background: #4169e1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retryButton:hover {
+  background: #2c4eb8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+}
+
+.retryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.backButton {
+  padding: 0.875rem 2rem;
+  background: transparent;
+  color: #4169e1;
+  border: 2px solid #4169e1;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  background: #4169e1;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(65, 105, 225, 0.3);
+}
+
+.backButton:active {
+  transform: translateY(0);
+}
+
+/* Loading Container Styles */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  gap: 1.5rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #4169e1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingContainer p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .errorContainer {
+    padding: 1rem;
+  }
+
+  .errorIcon {
+    font-size: 3.5rem;
+  }
+
+  .errorContainer h2 {
+    font-size: 1.5rem;
+  }
+
+  .errorMessage {
+    font-size: 1rem;
+  }
+
+  .errorActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .retryButton,
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Add these styles to your HotelsPage.module.css */
+
+/* Error Container Styles */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 2rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.errorIcon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.errorContainer h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+}
+
+.errorMessage {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.errorCode {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  color: #e53e3e;
+  font-size: 0.95em;
+}
+
+.errorDetails {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.errorDetailsTitle {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #333;
+  margin-top: 0;
+}
+
+.errorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.errorList li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #555;
+}
+
+.errorList li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #e53e3e;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.commandBox {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.troubleshootBox {
+  background: #fff8dc;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+  border: 1px solid #f0e68c;
+}
+
+.troubleshootTitle {
+  color: #856404;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+  font-weight: 600;
+}
+
+.troubleshootList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.troubleshootList li {
+  padding: 0.4rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #856404;
+}
+
+.troubleshootList li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.commandTitle {
+  color: #a0aec0;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.commandCode {
+  color: #48bb78;
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.errorActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.retryButton {
+  padding: 0.875rem 2rem;
+  background: #4169e1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retryButton:hover {
+  background: #2c4eb8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(65, 105, 225, 0.4);
+}
+
+.retryButton:active {
+  transform: translateY(0);
+}
+
+.retryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.backButton {
+  padding: 0.875rem 2rem;
+  background: transparent;
+  color: #4169e1;
+  border: 2px solid #4169e1;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.backButton:hover {
+  background: #4169e1;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(65, 105, 225, 0.3);
+}
+
+.backButton:active {
+  transform: translateY(0);
+}
+
+/* Loading Container Styles */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  gap: 1.5rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #4169e1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingContainer p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .errorContainer {
+    padding: 1rem;
+  }
+
+  .errorIcon {
+    font-size: 3.5rem;
+  }
+
+  .errorContainer h2 {
+    font-size: 1.5rem;
+  }
+
+  .errorMessage {
+    font-size: 1rem;
+  }
+
+  .errorActions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .retryButton,
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
